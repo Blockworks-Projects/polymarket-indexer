@@ -14,5 +14,7 @@ FeeModule.FeeRefunded.handler(async ({ event, context }) => {
     feeRefunded: event.params.refund,
     feeCharged: event.params.feeCharged,
     negRisk,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });

@@ -11,6 +11,8 @@ type FeeRefunded @index(fields: ["refundee", ["timestamp", "DESC"]]) {
   feeRefunded: BigInt!
   feeCharged: BigInt!
   negRisk: Boolean!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 ## ============================================================
@@ -24,6 +26,8 @@ type Game {
   state: String! @index
   homeScore: BigInt!
   awayScore: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type Market {
@@ -34,6 +38,8 @@ type Market {
   underdog: String!
   line: BigInt!
   payouts: [BigInt!]!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 ## ============================================================
@@ -47,11 +53,15 @@ type Wallet {
   balance: BigInt!
   lastTransfer: BigInt!
   createdAt: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type GlobalUSDCBalance {
   id: ID!
   balance: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 ## ============================================================
@@ -69,6 +79,8 @@ type MarketData {
   image: String!
   startDate: String!
   endDate: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type OrderFilledEvent
@@ -85,6 +97,8 @@ type OrderFilledEvent
   makerAmountFilled: BigInt!
   takerAmountFilled: BigInt!
   fee: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type OrdersMatchedEvent {
@@ -94,6 +108,8 @@ type OrdersMatchedEvent {
   takerAssetID: BigInt!
   makerAmountFilled: BigInt!
   takerAmountFilled: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type Orderbook {
@@ -107,6 +123,8 @@ type Orderbook {
   scaledCollateralBuyVolume: BigDecimal!
   collateralSellVolume: BigInt!
   scaledCollateralSellVolume: BigDecimal!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type OrdersMatchedGlobal {
@@ -120,6 +138,8 @@ type OrdersMatchedGlobal {
   scaledCollateralBuyVolume: BigDecimal!
   collateralSellVolume: BigInt!
   scaledCollateralSellVolume: BigDecimal!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 ## ============================================================
@@ -131,22 +151,30 @@ type Condition {
   positionIds: [BigInt!]!
   payoutNumerators: [BigInt!]!
   payoutDenominator: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type NegRiskEvent {
   id: ID!
   feeBps: BigInt!
   questionCount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type MarketOpenInterest {
   id: ID!
   amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type GlobalOpenInterest {
   id: ID!
   amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 ## ============================================================
@@ -200,6 +228,8 @@ type Position {
   id: ID!
   condition: String! @index
   outcomeIndex: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type FixedProductMarketMaker {
@@ -231,6 +261,8 @@ type FixedProductMarketMaker {
   outcomeSlotCount: BigInt
   lastActiveDay: BigInt!
   totalSupply: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 ## ============================================================
@@ -245,6 +277,8 @@ type UserPosition @index(fields: ["user", "tokenId"]) {
   avgPrice: BigInt!
   realizedPnl: BigInt!
   totalBought: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 ## ============================================================
@@ -256,6 +290,8 @@ type Collateral {
   name: String!
   symbol: String!
   decimals: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 enum TransactionType {
@@ -275,6 +311,8 @@ type FpmmTransaction
   feeAmount: BigInt!
   outcomeIndex: BigInt!
   outcomeTokensAmount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type FpmmFundingAddition
@@ -287,6 +325,8 @@ type FpmmFundingAddition
   amountsAdded: [BigInt!]!
   amountsRefunded: [BigInt!]!
   sharesMinted: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type FpmmFundingRemoval
@@ -299,6 +339,8 @@ type FpmmFundingRemoval
   amountsRemoved: [BigInt!]!
   collateralRemoved: BigInt!
   sharesBurnt: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }
 
 type FpmmPoolMembership {
@@ -306,4 +348,6 @@ type FpmmPoolMembership {
   pool_id: String! @index
   funder: String! @index
   amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
 }

@@ -58,7 +58,7 @@ describe("ConditionalTokens - ConditionPreparation", () => {
 describe("ConditionalTokens - PositionSplit", () => {
   it("should create Split entity and update OI for USDC split", async () => {
     const mockDb = MockDb.createMockDb();
-    const seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n });
+    const seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = ConditionalTokens.PositionSplit.createMockEvent({
       stakeholder: Addresses.mockAddresses[0]!,
@@ -92,7 +92,7 @@ describe("ConditionalTokens - PositionSplit", () => {
   it("should skip Split for NegRiskAdapter stakeholder but still update OI", async () => {
     const mockDb = MockDb.createMockDb();
     const NEG_RISK_ADAPTER_ADDR = "0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296";
-    const seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n });
+    const seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = ConditionalTokens.PositionSplit.createMockEvent({
       stakeholder: NEG_RISK_ADAPTER_ADDR,
@@ -122,14 +122,18 @@ describe("ConditionalTokens - PositionSplit", () => {
 describe("ConditionalTokens - PositionsMerge", () => {
   it("should create Merge entity and decrease OI", async () => {
     const mockDb = MockDb.createMockDb();
-    let seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n });
+    let seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n, blockNumber: 0n, blockTimestamp: 0n });
     seededDb = seededDb.entities.MarketOpenInterest.set({
       id: MOCK_CONDITION_ID,
       amount: 2_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.GlobalOpenInterest.set({
       id: "",
       amount: 2_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.PositionsMerge.createMockEvent({
@@ -160,14 +164,18 @@ describe("ConditionalTokens - PositionsMerge", () => {
 describe("ConditionalTokens - PayoutRedemption", () => {
   it("should create Redemption entity and decrease OI", async () => {
     const mockDb = MockDb.createMockDb();
-    let seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n });
+    let seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n, blockNumber: 0n, blockTimestamp: 0n });
     seededDb = seededDb.entities.MarketOpenInterest.set({
       id: MOCK_CONDITION_ID,
       amount: 1_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.GlobalOpenInterest.set({
       id: "",
       amount: 1_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.PayoutRedemption.createMockEvent({
@@ -201,6 +209,8 @@ describe("ConditionalTokens - OI accumulation", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const event1 = ConditionalTokens.PositionSplit.createMockEvent({
@@ -245,6 +255,8 @@ describe("ConditionalTokens - non-USDC split skips OI", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.PositionSplit.createMockEvent({
@@ -276,6 +288,8 @@ describe("ConditionalTokens - PositionSplit PnL tracking", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.PositionSplit.createMockEvent({
@@ -314,17 +328,21 @@ describe("ConditionalTokens - PositionsMerge PnL", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-100`, user, tokenId: 100n,
       amount: 1_000_000n, avgPrice: 400_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-101`, user, tokenId: 101n,
       amount: 1_000_000n, avgPrice: 400_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
-    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 1_000_000n });
-    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 1_000_000n });
+    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 1_000_000n, blockNumber: 0n, blockTimestamp: 0n });
+    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 1_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = ConditionalTokens.PositionsMerge.createMockEvent({
       stakeholder: user,
@@ -361,17 +379,21 @@ describe("ConditionalTokens - PayoutRedemption PnL", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [1n, 0n],
       payoutDenominator: 1n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-100`, user, tokenId: 100n,
       amount: 1_000_000n, avgPrice: 600_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-101`, user, tokenId: 101n,
       amount: 1_000_000n, avgPrice: 400_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
-    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 1_000_000n });
-    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 1_000_000n });
+    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 1_000_000n, blockNumber: 0n, blockTimestamp: 0n });
+    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 1_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = ConditionalTokens.PayoutRedemption.createMockEvent({
       redeemer: user,
@@ -407,6 +429,8 @@ describe("ConditionalTokens - ConditionResolution split payouts", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.ConditionResolution.createMockEvent({
@@ -476,10 +500,14 @@ describe("ConditionalTokens - PositionsMerge when stakeholder is FPMM", () => {
     seededDb = seededDb.entities.MarketOpenInterest.set({
       id: MOCK_CONDITION_ID,
       amount: 5_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.GlobalOpenInterest.set({
       id: "",
       amount: 5_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.PositionsMerge.createMockEvent({
@@ -520,14 +548,20 @@ describe("ConditionalTokens - PayoutRedemption when redeemer is NegRiskAdapter",
       positionIds: [100n, 101n],
       payoutNumerators: [1n, 0n],
       payoutDenominator: 1n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.MarketOpenInterest.set({
       id: MOCK_CONDITION_ID,
       amount: 2_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.GlobalOpenInterest.set({
       id: "",
       amount: 2_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.PayoutRedemption.createMockEvent({
@@ -571,17 +605,21 @@ describe("ConditionalTokens - PayoutRedemption with payoutDenominator === 0n", (
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-100`, user, tokenId: 100n,
       amount: 1_000_000n, avgPrice: 600_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-101`, user, tokenId: 101n,
       amount: 1_000_000n, avgPrice: 400_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
-    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 2_000_000n });
-    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 2_000_000n });
+    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 2_000_000n, blockNumber: 0n, blockTimestamp: 0n });
+    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 2_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = ConditionalTokens.PayoutRedemption.createMockEvent({
       redeemer: user,

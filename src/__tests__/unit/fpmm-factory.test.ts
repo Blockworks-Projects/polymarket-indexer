@@ -19,6 +19,8 @@ describe("FPMMFactory - FixedProductMarketMakerCreation", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent =
@@ -56,6 +58,8 @@ describe("FPMMFactory - FixedProductMarketMakerCreation", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent =

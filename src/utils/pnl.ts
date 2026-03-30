@@ -19,6 +19,8 @@ export async function loadOrCreateUserPosition(
   avgPrice: bigint;
   realizedPnl: bigint;
   totalBought: bigint;
+  blockNumber: bigint;
+  blockTimestamp: bigint;
 }> {
   const id = getUserPositionEntityId(user, tokenId);
   const existing = await context.UserPosition.get(id);
@@ -31,6 +33,8 @@ export async function loadOrCreateUserPosition(
     avgPrice: 0n,
     realizedPnl: 0n,
     totalBought: 0n,
+    blockNumber: 0n,
+    blockTimestamp: 0n,
   };
 }
 
@@ -40,6 +44,8 @@ export async function updateUserPositionWithBuy(
   positionId: bigint,
   price: bigint,
   amount: bigint,
+  blockNumber: bigint,
+  blockTimestamp: bigint,
 ): Promise<void> {
   if (amount <= 0n) return;
 
@@ -55,6 +61,8 @@ export async function updateUserPositionWithBuy(
     avgPrice: newAvgPrice,
     amount: userPosition.amount + amount,
     totalBought: userPosition.totalBought + amount,
+    blockNumber,
+    blockTimestamp,
   });
 }
 
@@ -64,6 +72,8 @@ export async function updateUserPositionWithSell(
   positionId: bigint,
   price: bigint,
   amount: bigint,
+  blockNumber: bigint,
+  blockTimestamp: bigint,
 ): Promise<void> {
   const userPosition = await loadOrCreateUserPosition(context, user, positionId);
 
@@ -77,6 +87,8 @@ export async function updateUserPositionWithSell(
     ...userPosition,
     realizedPnl: userPosition.realizedPnl + deltaPnL,
     amount: userPosition.amount - adjustedAmount,
+    blockNumber,
+    blockTimestamp,
   });
 }
 

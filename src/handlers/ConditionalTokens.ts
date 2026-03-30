@@ -42,35 +42,41 @@ const SKIP_PNL = new Set([
 async function getOrCreateMarketOI(
   context: any,
   conditionId: string,
-): Promise<{ id: string; amount: bigint }> {
+): Promise<{ id: string; amount: bigint; blockNumber: bigint; blockTimestamp: bigint }> {
   const existing = await context.MarketOpenInterest.get(conditionId);
   if (existing) return existing;
-  return { id: conditionId, amount: 0n };
+  return { id: conditionId, amount: 0n, blockNumber: 0n, blockTimestamp: 0n };
 }
 
 async function getOrCreateGlobalOI(
   context: any,
-): Promise<{ id: string; amount: bigint }> {
+): Promise<{ id: string; amount: bigint; blockNumber: bigint; blockTimestamp: bigint }> {
   const existing = await context.GlobalOpenInterest.get("");
   if (existing) return existing;
-  return { id: "", amount: 0n };
+  return { id: "", amount: 0n, blockNumber: 0n, blockTimestamp: 0n };
 }
 
 async function updateOpenInterest(
   context: any,
   conditionId: string,
   amount: bigint,
+  blockNumber: bigint,
+  blockTimestamp: bigint,
 ): Promise<void> {
   const marketOI = await getOrCreateMarketOI(context, conditionId);
   context.MarketOpenInterest.set({
     ...marketOI,
     amount: marketOI.amount + amount,
+    blockNumber,
+    blockTimestamp,
   });
 
   const globalOI = await getOrCreateGlobalOI(context);
   context.GlobalOpenInterest.set({
     ...globalOI,
     amount: globalOI.amount + amount,
+    blockNumber,
+    blockTimestamp,
   });
 }
 
@@ -100,6 +106,8 @@ ConditionalTokens.ConditionPreparation.handler(async ({ event, context }) => {
   const conditionId = event.params.conditionId;
   const negRisk =
     event.params.oracle.toLowerCase() === NEG_RISK_ADAPTER_LOWER;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // Compute position IDs for PnL tracking
   const [posId0, posId1] = getPositionIds(conditionId as `0x${string}`, negRisk);
@@ -112,6 +120,8 @@ ConditionalTokens.ConditionPreparation.handler(async ({ event, context }) => {
       positionIds: [posId0, posId1],
       payoutNumerators: [] as bigint[],
       payoutDenominator: 0n,
+      blockNumber,
+      blockTimestamp,
     });
   }
 
@@ -126,6 +136,8 @@ ConditionalTokens.ConditionPreparation.handler(async ({ event, context }) => {
         id: posIdStr,
         condition: conditionId,
         outcomeIndex: BigInt(outcomeIndex),
+        blockNumber,
+        blockTimestamp,
       });
     }
   }
@@ -150,6 +162,8 @@ ConditionalTokens.ConditionResolution.handler(async ({ event, context }) => {
     ...condition,
     payoutNumerators,
     payoutDenominator,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -162,6 +176,8 @@ ConditionalTokens.PositionSplit.handler(async ({ event, context }) => {
   const stakeholder = event.params.stakeholder;
   const stakeholderLower = stakeholder.toLowerCase();
   const collateralToken = event.params.collateralToken;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   const condition = await context.Condition.get(conditionId);
   if (!condition) return;
@@ -172,7 +188,7 @@ ConditionalTokens.PositionSplit.handler(async ({ event, context }) => {
     if (!isFPMM) {
       context.Split.set({
         id: getEventKey(event.chainId, event.block.number, event.logIndex),
-        timestamp: BigInt(event.block.timestamp),
+        timestamp: blockTimestamp,
         stakeholder,
         condition: conditionId,
         amount: event.params.amount,
@@ -182,7 +198,7 @@ ConditionalTokens.PositionSplit.handler(async ({ event, context }) => {
 
   // OI: Only track USDC splits
   if (collateralToken.toLowerCase() === USDC_LOWER) {
-    await updateOpenInterest(context, conditionId, event.params.amount);
+    await updateOpenInterest(context, conditionId, event.params.amount, blockNumber, blockTimestamp);
   }
 
   // PnL: Split = buying both outcomes at 50 cents each (skip NRA/Exchange)
@@ -195,6 +211,8 @@ ConditionalTokens.PositionSplit.handler(async ({ event, context }) => {
         positionIds[i]!,
         FIFTY_CENTS,
         event.params.amount,
+        blockNumber,
+        blockTimestamp,
       );
     }
   }
@@ -209,6 +227,8 @@ ConditionalTokens.PositionsMerge.handler(async ({ event, context }) => {
   const stakeholder = event.params.stakeholder;
   const stakeholderLower = stakeholder.toLowerCase();
   const collateralToken = event.params.collateralToken;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   const condition = await context.Condition.get(conditionId);
   if (!condition) return;
@@ -219,7 +239,7 @@ ConditionalTokens.PositionsMerge.handler(async ({ event, context }) => {
     if (!isFPMM) {
       context.Merge.set({
         id: getEventKey(event.chainId, event.block.number, event.logIndex),
-        timestamp: BigInt(event.block.timestamp),
+        timestamp: blockTimestamp,
         stakeholder,
         condition: conditionId,
         amount: event.params.amount,
@@ -229,7 +249,7 @@ ConditionalTokens.PositionsMerge.handler(async ({ event, context }) => {
 
   // OI: Only track USDC merges
   if (collateralToken.toLowerCase() === USDC_LOWER) {
-    await updateOpenInterest(context, conditionId, -event.params.amount);
+    await updateOpenInterest(context, conditionId, -event.params.amount, blockNumber, blockTimestamp);
   }
 
   // PnL: Merge = selling both outcomes at 50 cents each (skip NRA/Exchange)
@@ -242,6 +262,8 @@ ConditionalTokens.PositionsMerge.handler(async ({ event, context }) => {
         positionIds[i]!,
         FIFTY_CENTS,
         event.params.amount,
+        blockNumber,
+        blockTimestamp,
       );
     }
   }
@@ -255,6 +277,8 @@ ConditionalTokens.PayoutRedemption.handler(async ({ event, context }) => {
   const conditionId = event.params.conditionId;
   const redeemer = event.params.redeemer;
   const collateralToken = event.params.collateralToken;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   const condition = await context.Condition.get(conditionId);
   if (!condition) return;
@@ -263,7 +287,7 @@ ConditionalTokens.PayoutRedemption.handler(async ({ event, context }) => {
   if (redeemer.toLowerCase() !== NEG_RISK_ADAPTER_LOWER) {
     context.Redemption.set({
       id: getEventKey(event.chainId, event.block.number, event.logIndex),
-      timestamp: BigInt(event.block.timestamp),
+      timestamp: blockTimestamp,
       redeemer,
       condition: conditionId,
       indexSets: event.params.indexSets.map((v: bigint) => v),
@@ -273,7 +297,7 @@ ConditionalTokens.PayoutRedemption.handler(async ({ event, context }) => {
 
   // OI: Only track USDC redemptions
   if (collateralToken.toLowerCase() === USDC_LOWER) {
-    await updateOpenInterest(context, conditionId, -event.params.payout);
+    await updateOpenInterest(context, conditionId, -event.params.payout, blockNumber, blockTimestamp);
   }
 
   // PnL: Redeem = sell at payout price (skip NRA — handled there)
@@ -299,6 +323,8 @@ ConditionalTokens.PayoutRedemption.handler(async ({ event, context }) => {
         positionIds[i]!,
         price,
         amount,
+        blockNumber,
+        blockTimestamp,
       );
     }
   }

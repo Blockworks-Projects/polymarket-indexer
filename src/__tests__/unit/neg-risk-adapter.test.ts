@@ -49,6 +49,8 @@ describe("NegRiskAdapter - QuestionPrepared", () => {
       id: marketId,
       feeBps: 100n,
       questionCount: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = NegRiskAdapter.QuestionPrepared.createMockEvent({
@@ -72,7 +74,7 @@ describe("NegRiskAdapter - QuestionPrepared", () => {
 describe("NegRiskAdapter - PositionSplit", () => {
   it("should create Split and update OI", async () => {
     const mockDb = MockDb.createMockDb();
-    const seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n });
+    const seededDb = mockDb.entities.Condition.set({ id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = NegRiskAdapter.PositionSplit.createMockEvent({
       stakeholder: Addresses.mockAddresses[0]!,
@@ -103,6 +105,8 @@ describe("NegRiskAdapter - PositionsConverted", () => {
       id: marketId,
       feeBps: 0n,
       questionCount: 3n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = NegRiskAdapter.PositionsConverted.createMockEvent({
@@ -129,7 +133,7 @@ describe("NegRiskAdapter - QuestionPrepared multiple", () => {
     const mockDb = MockDb.createMockDb();
     const marketId = "0x0000000000000000000000000000000000000000000000000000000000005555";
 
-    let db = mockDb.entities.NegRiskEvent.set({ id: marketId, feeBps: 100n, questionCount: 0n });
+    let db = mockDb.entities.NegRiskEvent.set({ id: marketId, feeBps: 100n, questionCount: 0n, blockNumber: 0n, blockTimestamp: 0n });
 
     for (let i = 0; i < 3; i++) {
       const ev = NegRiskAdapter.QuestionPrepared.createMockEvent({
@@ -150,10 +154,10 @@ describe("NegRiskAdapter - PositionsMerge", () => {
     const mockDb = MockDb.createMockDb();
 
     let seededDb = mockDb.entities.Condition.set({
-      id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n,
+      id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n, blockNumber: 0n, blockTimestamp: 0n,
     });
-    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 5_000_000n });
-    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 5_000_000n });
+    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 5_000_000n, blockNumber: 0n, blockTimestamp: 0n });
+    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 5_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = NegRiskAdapter.PositionsMerge.createMockEvent({
       stakeholder: Addresses.mockAddresses[0]!,
@@ -177,10 +181,10 @@ describe("NegRiskAdapter - PositionsMerge", () => {
     const NEG_RISK_EXCHANGE_ADDR = "0xC5d563A36AE78145C45a50134d48A1215220f80a";
 
     let seededDb = mockDb.entities.Condition.set({
-      id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n,
+      id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [], payoutDenominator: 0n, blockNumber: 0n, blockTimestamp: 0n,
     });
-    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 5_000_000n });
-    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 5_000_000n });
+    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 5_000_000n, blockNumber: 0n, blockTimestamp: 0n });
+    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 5_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = NegRiskAdapter.PositionsMerge.createMockEvent({
       stakeholder: NEG_RISK_EXCHANGE_ADDR,
@@ -203,10 +207,10 @@ describe("NegRiskAdapter - PayoutRedemption", () => {
     const mockDb = MockDb.createMockDb();
 
     let seededDb = mockDb.entities.Condition.set({
-      id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [1n, 0n], payoutDenominator: 1n,
+      id: MOCK_CONDITION_ID, positionIds: [100n, 101n], payoutNumerators: [1n, 0n], payoutDenominator: 1n, blockNumber: 0n, blockTimestamp: 0n,
     });
-    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 3_000_000n });
-    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 3_000_000n });
+    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 3_000_000n, blockNumber: 0n, blockTimestamp: 0n });
+    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 3_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = NegRiskAdapter.PayoutRedemption.createMockEvent({
       redeemer: Addresses.mockAddresses[0]!,
@@ -244,6 +248,8 @@ describe("NegRiskAdapter - PositionsConverted with feeBps > 0", () => {
       id: marketId,
       feeBps: 200n,
       questionCount: 3n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     // Seed conditions for all 3 questions so OI can be tracked
@@ -261,13 +267,17 @@ describe("NegRiskAdapter - PositionsConverted with feeBps > 0", () => {
         positionIds: [BigInt(qi * 2), BigInt(qi * 2 + 1)],
         payoutNumerators: [],
         payoutDenominator: 0n,
+        blockNumber: 0n,
+        blockTimestamp: 0n,
       });
       db = db.entities.MarketOpenInterest.set({
         id: conditionId,
         amount: 10_000_000n,
+        blockNumber: 0n,
+        blockTimestamp: 0n,
       });
     }
-    db = db.entities.GlobalOpenInterest.set({ id: "", amount: 30_000_000n });
+    db = db.entities.GlobalOpenInterest.set({ id: "", amount: 30_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     // Seed user positions for NO tokens so sell works
     for (let qi = 0; qi < 3; qi++) {
@@ -284,6 +294,8 @@ describe("NegRiskAdapter - PositionsConverted with feeBps > 0", () => {
         avgPrice: 500_000n,
         realizedPnl: 0n,
         totalBought: 5_000_000n,
+        blockNumber: 0n,
+        blockTimestamp: 0n,
       });
     }
 
@@ -340,6 +352,8 @@ describe("NegRiskAdapter - PositionsConverted YES-buy branch", () => {
       id: marketId,
       feeBps: 0n,
       questionCount: 3n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     // Seed conditions for all 3 questions
@@ -355,13 +369,17 @@ describe("NegRiskAdapter - PositionsConverted YES-buy branch", () => {
         positionIds: [BigInt(qi * 2), BigInt(qi * 2 + 1)],
         payoutNumerators: [],
         payoutDenominator: 0n,
+        blockNumber: 0n,
+        blockTimestamp: 0n,
       });
       db = db.entities.MarketOpenInterest.set({
         id: conditionId,
         amount: 10_000_000n,
+        blockNumber: 0n,
+        blockTimestamp: 0n,
       });
     }
-    db = db.entities.GlobalOpenInterest.set({ id: "", amount: 30_000_000n });
+    db = db.entities.GlobalOpenInterest.set({ id: "", amount: 30_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     // Seed user positions for NO tokens on questions 0 and 1
     for (let qi = 0; qi < 2; qi++) {
@@ -378,6 +396,8 @@ describe("NegRiskAdapter - PositionsConverted YES-buy branch", () => {
         avgPrice: 500_000n,
         realizedPnl: 0n,
         totalBought: 5_000_000n,
+        blockNumber: 0n,
+        blockTimestamp: 0n,
       });
     }
 
@@ -427,17 +447,21 @@ describe("NegRiskAdapter - PayoutRedemption with payoutDenominator === 0n", () =
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-100`, user, tokenId: 100n,
       amount: 1_000_000n, avgPrice: 600_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.UserPosition.set({
       id: `${user}-101`, user, tokenId: 101n,
       amount: 1_000_000n, avgPrice: 400_000n, realizedPnl: 0n, totalBought: 1_000_000n,
+      blockNumber: 0n, blockTimestamp: 0n,
     });
-    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 2_000_000n });
-    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 2_000_000n });
+    seededDb = seededDb.entities.MarketOpenInterest.set({ id: MOCK_CONDITION_ID, amount: 2_000_000n, blockNumber: 0n, blockTimestamp: 0n });
+    seededDb = seededDb.entities.GlobalOpenInterest.set({ id: "", amount: 2_000_000n, blockNumber: 0n, blockTimestamp: 0n });
 
     const mockEvent = NegRiskAdapter.PayoutRedemption.createMockEvent({
       redeemer: user,

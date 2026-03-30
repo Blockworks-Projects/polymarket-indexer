@@ -14,7 +14,7 @@
     "vitest": "4.0.16"
   },
   "dependencies": {
-    "envio": "3.0.0-alpha.18",
+    "envio": "3.0.0-alpha.20",
     "viem": "^2.0.0"
   },
   "optionalDependencies": {

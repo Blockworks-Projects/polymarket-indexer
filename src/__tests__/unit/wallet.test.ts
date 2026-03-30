@@ -47,6 +47,8 @@ describe("Wallet - USDC Transfer", () => {
       balance: 1000n,
       lastTransfer: 0n,
       createdAt: 100n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = USDC.Transfer.createMockEvent({
@@ -77,6 +79,8 @@ describe("Wallet - USDC Transfer", () => {
       balance: 1000n,
       lastTransfer: 0n,
       createdAt: 100n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = USDC.Transfer.createMockEvent({
@@ -108,6 +112,8 @@ describe("Wallet - GlobalUSDCBalance", () => {
       balance: 0n,
       lastTransfer: 0n,
       createdAt: 100n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = USDC.Transfer.createMockEvent({
@@ -138,6 +144,8 @@ describe("Wallet - GlobalUSDCBalance", () => {
       balance: 10_000_000n,
       lastTransfer: 0n,
       createdAt: 100n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.Wallet.set({
       id: walletB,
@@ -146,10 +154,14 @@ describe("Wallet - GlobalUSDCBalance", () => {
       balance: 2_000_000n,
       lastTransfer: 0n,
       createdAt: 100n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
     seededDb = seededDb.entities.GlobalUSDCBalance.set({
       id: "global",
       balance: 12_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = USDC.Transfer.createMockEvent({
@@ -182,6 +194,8 @@ describe("Wallet - duplicate ProxyCreation", () => {
       balance: 5_000_000n,
       lastTransfer: 100n,
       createdAt: 50n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = SafeProxyFactory.ProxyCreation.createMockEvent({

@@ -44,6 +44,8 @@ async function getOrCreateOrderbook(
     scaledCollateralBuyVolume: 0,
     collateralSellVolume: 0n,
     scaledCollateralSellVolume: 0,
+    blockNumber: 0n,
+    blockTimestamp: 0n,
   };
 }
 
@@ -63,6 +65,8 @@ async function getOrCreateGlobal(
     scaledCollateralBuyVolume: 0,
     collateralSellVolume: 0n,
     scaledCollateralSellVolume: 0,
+    blockNumber: 0n,
+    blockTimestamp: 0n,
   };
 }
 
@@ -97,7 +101,12 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
     makerAmountFilled: event.params.makerAmountFilled,
     takerAmountFilled: event.params.takerAmountFilled,
     fee: event.params.fee,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
+
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // Update Orderbook
   const orderbook = await getOrCreateOrderbook(context, tokenId);
@@ -113,6 +122,8 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
       buysQuantity: orderbook.buysQuantity + 1n,
       collateralBuyVolume: newBuyVol,
       scaledCollateralBuyVolume: scaleBigInt(newBuyVol),
+      blockNumber,
+      blockTimestamp,
     });
   } else {
     const newSellVol = orderbook.collateralSellVolume + size;
@@ -124,6 +135,8 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
       sellsQuantity: orderbook.sellsQuantity + 1n,
       collateralSellVolume: newSellVol,
       scaledCollateralSellVolume: scaleBigInt(newSellVol),
+      blockNumber,
+      blockTimestamp,
     });
   }
 
@@ -141,6 +154,8 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
       order.positionId,
       price,
       order.baseAmount,
+      blockNumber,
+      blockTimestamp,
     );
   } else {
     await updateUserPositionWithSell(
@@ -149,6 +164,8 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
       order.positionId,
       price,
       order.baseAmount,
+      blockNumber,
+      blockTimestamp,
     );
   }
 });
@@ -172,7 +189,12 @@ Exchange.OrdersMatched.handler(async ({ event, context }) => {
     takerAssetID: event.params.takerAssetId,
     makerAmountFilled: event.params.makerAmountFilled,
     takerAmountFilled: event.params.takerAmountFilled,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
+
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // Update global volume
   const global = await getOrCreateGlobal(context);
@@ -188,6 +210,8 @@ Exchange.OrdersMatched.handler(async ({ event, context }) => {
       buysQuantity: global.buysQuantity + 1n,
       collateralBuyVolume: newBuyVol,
       scaledCollateralBuyVolume: scaleBigInt(newBuyVol),
+      blockNumber,
+      blockTimestamp,
     });
   } else {
     const newSellVol = global.collateralSellVolume + size;
@@ -199,6 +223,8 @@ Exchange.OrdersMatched.handler(async ({ event, context }) => {
       sellsQuantity: global.sellsQuantity + 1n,
       collateralSellVolume: newSellVol,
       scaledCollateralSellVolume: scaleBigInt(newSellVol),
+      blockNumber,
+      blockTimestamp,
     });
   }
 });
@@ -211,6 +237,8 @@ Exchange.TokenRegistered.handler(async ({ event, context }) => {
   const token0Str = event.params.token0.toString();
   const token1Str = event.params.token1.toString();
   const condition = event.params.conditionId;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // Fetch market metadata from Polymarket Gamma API (cached + rate-limited)
   const metadata = await context.effect(getMarketMetadata, token0Str);
@@ -235,6 +263,8 @@ Exchange.TokenRegistered.handler(async ({ event, context }) => {
       image,
       startDate,
       endDate,
+      blockNumber,
+      blockTimestamp,
     });
   }
 
@@ -251,6 +281,8 @@ Exchange.TokenRegistered.handler(async ({ event, context }) => {
       image,
       startDate,
       endDate,
+      blockNumber,
+      blockTimestamp,
     });
   }
 });

@@ -31,40 +31,48 @@ const NO_INDEX = 1;
 async function getOrCreateMarketOI(
   context: any,
   conditionId: string,
-): Promise<{ id: string; amount: bigint }> {
+): Promise<{ id: string; amount: bigint; blockNumber: bigint; blockTimestamp: bigint }> {
   const existing = await context.MarketOpenInterest.get(conditionId);
   if (existing) return existing;
-  return { id: conditionId, amount: 0n };
+  return { id: conditionId, amount: 0n, blockNumber: 0n, blockTimestamp: 0n };
 }
 
 async function getOrCreateGlobalOI(
   context: any,
-): Promise<{ id: string; amount: bigint }> {
+): Promise<{ id: string; amount: bigint; blockNumber: bigint; blockTimestamp: bigint }> {
   const existing = await context.GlobalOpenInterest.get("");
   if (existing) return existing;
-  return { id: "", amount: 0n };
+  return { id: "", amount: 0n, blockNumber: 0n, blockTimestamp: 0n };
 }
 
 async function updateMarketOI(
   context: any,
   conditionId: string,
   amount: bigint,
+  blockNumber: bigint,
+  blockTimestamp: bigint,
 ): Promise<void> {
   const marketOI = await getOrCreateMarketOI(context, conditionId);
   context.MarketOpenInterest.set({
     ...marketOI,
     amount: marketOI.amount + amount,
+    blockNumber,
+    blockTimestamp,
   });
 }
 
 async function updateGlobalOI(
   context: any,
   amount: bigint,
+  blockNumber: bigint,
+  blockTimestamp: bigint,
 ): Promise<void> {
   const globalOI = await getOrCreateGlobalOI(context);
   context.GlobalOpenInterest.set({
     ...globalOI,
     amount: globalOI.amount + amount,
+    blockNumber,
+    blockTimestamp,
   });
 }
 
@@ -72,9 +80,11 @@ async function updateOpenInterest(
   context: any,
   conditionId: string,
   amount: bigint,
+  blockNumber: bigint,
+  blockTimestamp: bigint,
 ): Promise<void> {
-  await updateMarketOI(context, conditionId, amount);
-  await updateGlobalOI(context, amount);
+  await updateMarketOI(context, conditionId, amount, blockNumber, blockTimestamp);
+  await updateGlobalOI(context, amount, blockNumber, blockTimestamp);
 }
 
 // ============================================================
@@ -86,6 +96,8 @@ NegRiskAdapter.MarketPrepared.handler(async ({ event, context }) => {
     id: event.params.marketId,
     feeBps: event.params.feeBips,
     questionCount: 0n,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -100,6 +112,8 @@ NegRiskAdapter.QuestionPrepared.handler(async ({ event, context }) => {
   context.NegRiskEvent.set({
     ...negRiskEvent,
     questionCount: negRiskEvent.questionCount + 1n,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -111,18 +125,20 @@ NegRiskAdapter.PositionSplit.handler(async ({ event, context }) => {
   const conditionId = event.params.conditionId;
   const stakeholder = event.params.stakeholder;
   const skipExchange = stakeholder.toLowerCase() === NEG_RISK_EXCHANGE_LOWER;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // OI: Check condition exists
   const condition = await context.Condition.get(conditionId);
   if (condition) {
-    await updateOpenInterest(context, conditionId, event.params.amount);
+    await updateOpenInterest(context, conditionId, event.params.amount, blockNumber, blockTimestamp);
   }
 
   // Activity: Create Split (skip NegRiskExchange)
   if (!skipExchange) {
     context.Split.set({
       id: getEventKey(event.chainId, event.block.number, event.logIndex),
-      timestamp: BigInt(event.block.timestamp),
+      timestamp: blockTimestamp,
       stakeholder,
       condition: conditionId,
       amount: event.params.amount,
@@ -139,6 +155,8 @@ NegRiskAdapter.PositionSplit.handler(async ({ event, context }) => {
         positionIds[i]!,
         FIFTY_CENTS,
         event.params.amount,
+        blockNumber,
+        blockTimestamp,
       );
     }
   }
@@ -152,18 +170,20 @@ NegRiskAdapter.PositionsMerge.handler(async ({ event, context }) => {
   const conditionId = event.params.conditionId;
   const stakeholder = event.params.stakeholder;
   const skipExchange = stakeholder.toLowerCase() === NEG_RISK_EXCHANGE_LOWER;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // OI: Check condition exists
   const condition = await context.Condition.get(conditionId);
   if (condition) {
-    await updateOpenInterest(context, conditionId, -event.params.amount);
+    await updateOpenInterest(context, conditionId, -event.params.amount, blockNumber, blockTimestamp);
   }
 
   // Activity: Create Merge (skip NegRiskExchange)
   if (!skipExchange) {
     context.Merge.set({
       id: getEventKey(event.chainId, event.block.number, event.logIndex),
-      timestamp: BigInt(event.block.timestamp),
+      timestamp: blockTimestamp,
       stakeholder,
       condition: conditionId,
       amount: event.params.amount,
@@ -180,6 +200,8 @@ NegRiskAdapter.PositionsMerge.handler(async ({ event, context }) => {
         positionIds[i]!,
         FIFTY_CENTS,
         event.params.amount,
+        blockNumber,
+        blockTimestamp,
       );
     }
   }
@@ -191,17 +213,19 @@ NegRiskAdapter.PositionsMerge.handler(async ({ event, context }) => {
 
 NegRiskAdapter.PayoutRedemption.handler(async ({ event, context }) => {
   const conditionId = event.params.conditionId;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // OI: Check condition exists
   const condition = await context.Condition.get(conditionId);
   if (condition) {
-    await updateOpenInterest(context, conditionId, -event.params.payout);
+    await updateOpenInterest(context, conditionId, -event.params.payout, blockNumber, blockTimestamp);
   }
 
   // Activity: Create Redemption with default indexSets for binary
   context.Redemption.set({
     id: getEventKey(event.chainId, event.block.number, event.logIndex),
-    timestamp: BigInt(event.block.timestamp),
+    timestamp: blockTimestamp,
     redeemer: event.params.redeemer,
     condition: conditionId,
     indexSets: [1n, 2n],
@@ -224,6 +248,8 @@ NegRiskAdapter.PayoutRedemption.handler(async ({ event, context }) => {
         positionIds[i]!,
         price,
         amount,
+        blockNumber,
+        blockTimestamp,
       );
     }
   }
@@ -241,11 +267,13 @@ NegRiskAdapter.PositionsConverted.handler(async ({ event, context }) => {
   const questionCount = Number(negRiskEvent.questionCount);
   const indexSet = event.params.indexSet;
   const stakeholder = event.params.stakeholder;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
 
   // Activity: Create NegRiskConversion
   context.NegRiskConversion.set({
     id: getEventKey(event.chainId, event.block.number, event.logIndex),
-    timestamp: BigInt(event.block.timestamp),
+    timestamp: blockTimestamp,
     stakeholder,
     negRiskMarketId: marketId,
     amount: event.params.amount,
@@ -282,9 +310,9 @@ NegRiskAdapter.PositionsConverted.handler(async ({ event, context }) => {
 
       const feeReleased = -(feeAmount * multiplier);
       for (let i = 0; i < noCount; i++) {
-        await updateMarketOI(context, conditionIds[i]!, feeReleased / divisor);
+        await updateMarketOI(context, conditionIds[i]!, feeReleased / divisor, blockNumber, blockTimestamp);
       }
-      await updateGlobalOI(context, feeReleased);
+      await updateGlobalOI(context, feeReleased, blockNumber, blockTimestamp);
     }
 
     const collateralReleased = -(amount * multiplier);
@@ -293,9 +321,11 @@ NegRiskAdapter.PositionsConverted.handler(async ({ event, context }) => {
         context,
         conditionIds[i]!,
         collateralReleased / divisor,
+        blockNumber,
+        blockTimestamp,
       );
     }
-    await updateGlobalOI(context, collateralReleased);
+    await updateGlobalOI(context, collateralReleased, blockNumber, blockTimestamp);
   }
 
   // PnL: Sell NO positions, buy YES positions
@@ -323,6 +353,8 @@ NegRiskAdapter.PositionsConverted.handler(async ({ event, context }) => {
         noPositionId,
         userPosition.avgPrice,
         event.params.amount,
+        blockNumber,
+        blockTimestamp,
       );
 
       noPriceSum += userPosition.avgPrice;
@@ -347,6 +379,8 @@ NegRiskAdapter.PositionsConverted.handler(async ({ event, context }) => {
           yesPositionId,
           yesPrice,
           event.params.amount,
+          blockNumber,
+          blockTimestamp,
         );
       }
     }

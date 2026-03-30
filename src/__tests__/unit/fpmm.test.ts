@@ -171,6 +171,8 @@ describe("FixedProductMarketMaker - Transfer pool membership", () => {
       pool_id: fpmmAddr,
       funder: from,
       amount: 5_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = FPMMTestHelper.Transfer.createMockEvent({ from, to, value: 2_000_000n });
@@ -264,6 +266,8 @@ describe("FixedProductMarketMaker - FPMMSell PnL tracking", () => {
       avgPrice: 400_000n,
       realizedPnl: 0n,
       totalBought: 2_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = FPMMTestHelper.FPMMSell.createMockEvent({
@@ -378,6 +382,8 @@ describe("FixedProductMarketMaker - FPMMFundingRemoved PnL", () => {
       avgPrice: 1_000_000n,
       realizedPnl: 0n,
       totalBought: 10_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = FPMMTestHelper.FPMMFundingRemoved.createMockEvent({
@@ -554,6 +560,8 @@ describe("FixedProductMarketMaker - Transfer burn (to zero address)", () => {
       pool_id: fpmmAddr,
       funder: from,
       amount: 5_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = FPMMTestHelper.Transfer.createMockEvent({

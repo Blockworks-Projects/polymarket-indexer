@@ -48,6 +48,8 @@ describe("PnL - ConditionalTokens ConditionResolution", () => {
       positionIds: [100n, 101n],
       payoutNumerators: [],
       payoutDenominator: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = ConditionalTokens.ConditionResolution.createMockEvent({
@@ -130,6 +132,8 @@ describe("PnL - UserPosition averaging", () => {
       avgPrice: 500_000n,
       realizedPnl: 0n,
       totalBought: 2_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     // Sell: 1 token at 0.8
@@ -171,6 +175,8 @@ describe("PnL - sell capped at position size", () => {
       avgPrice: 500_000n,
       realizedPnl: 0n,
       totalBought: 500_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const event = Exchange.OrderFilled.createMockEvent({
@@ -205,6 +211,8 @@ describe("PnL - multiple sells accumulate realizedPnl", () => {
       avgPrice: 400_000n,
       realizedPnl: 0n,
       totalBought: 3_000_000n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     // Sell 1 at 0.7 => pnl = 300_000

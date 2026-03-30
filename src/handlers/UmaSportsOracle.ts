@@ -40,6 +40,8 @@ UmaSportsOracle.GameCreated.handler(async ({ event, context }) => {
     state: GameStateCreated,
     homeScore: 0n,
     awayScore: 0n,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -55,6 +57,8 @@ UmaSportsOracle.GameSettled.handler(async ({ event, context }) => {
     state: GameStateSettled,
     homeScore: event.params.home,
     awayScore: event.params.away,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -70,6 +74,8 @@ UmaSportsOracle.GameEmergencySettled.handler(async ({ event, context }) => {
     state: GameStateEmergencySettled,
     homeScore: event.params.home,
     awayScore: event.params.away,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -83,6 +89,8 @@ UmaSportsOracle.GameCanceled.handler(async ({ event, context }) => {
   context.Game.set({
     ...game,
     state: GameStateCanceled,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -96,6 +104,8 @@ UmaSportsOracle.GamePaused.handler(async ({ event, context }) => {
   context.Game.set({
     ...game,
     state: GameStatePaused,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -109,6 +119,8 @@ UmaSportsOracle.GameUnpaused.handler(async ({ event, context }) => {
   context.Game.set({
     ...game,
     state: GameStateCreated, // Unpaused reverts to Created state
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -126,6 +138,8 @@ UmaSportsOracle.MarketCreated.handler(async ({ event, context }) => {
     underdog: getMarketUnderdog(event.params.underdog),
     line: event.params.line,
     payouts: [],
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -140,6 +154,8 @@ UmaSportsOracle.MarketResolved.handler(async ({ event, context }) => {
     ...market,
     state: MarketStateResolved,
     payouts: event.params.payouts,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -155,6 +171,8 @@ UmaSportsOracle.MarketEmergencyResolved.handler(
       ...market,
       state: MarketStateEmergencyResolved,
       payouts: event.params.payouts,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
     });
   },
 );
@@ -169,6 +187,8 @@ UmaSportsOracle.MarketPaused.handler(async ({ event, context }) => {
   context.Market.set({
     ...market,
     state: MarketStatePaused,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -182,5 +202,7 @@ UmaSportsOracle.MarketUnpaused.handler(async ({ event, context }) => {
   context.Market.set({
     ...market,
     state: MarketStateCreated, // Unpaused reverts to Created state
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
   });
 });

@@ -67,6 +67,8 @@ FPMMFactory.FixedProductMarketMakerCreation.handler(
       sellsQuantity: 0n,
       liquidityAddQuantity: 0n,
       liquidityRemoveQuantity: 0n,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
     });
   },
 );

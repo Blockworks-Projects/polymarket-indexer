@@ -43,6 +43,8 @@ describe("UmaSportsOracle", () => {
       state: "Created",
       homeScore: 0n,
       awayScore: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     };
     const seededDb = mockDb.entities.Game.set(initialGame);
 
@@ -107,6 +109,8 @@ describe("UmaSportsOracle", () => {
       underdog: "away",
       line: 150n,
       payouts: [] as bigint[],
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = UmaSportsOracle.MarketResolved.createMockEvent({
@@ -138,6 +142,8 @@ describe("UmaSportsOracle - GameEmergencySettled", () => {
       state: "Created",
       homeScore: 0n,
       awayScore: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = UmaSportsOracle.GameEmergencySettled.createMockEvent({
@@ -171,6 +177,8 @@ describe("UmaSportsOracle - GameCanceled", () => {
       state: "Created",
       homeScore: 0n,
       awayScore: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = UmaSportsOracle.GameCanceled.createMockEvent({
@@ -201,6 +209,8 @@ describe("UmaSportsOracle - GamePaused/Unpaused", () => {
       state: "Created",
       homeScore: 0n,
       awayScore: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const pauseEvent = UmaSportsOracle.GamePaused.createMockEvent({ gameId });
@@ -298,6 +308,8 @@ describe("UmaSportsOracle - MarketPaused/Unpaused", () => {
       underdog: "away",
       line: 0n,
       payouts: [] as bigint[],
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const pauseEvent = UmaSportsOracle.MarketPaused.createMockEvent({ marketId });
@@ -329,6 +341,8 @@ describe("UmaSportsOracle - MarketEmergencyResolved", () => {
       underdog: "away",
       line: 0n,
       payouts: [] as bigint[],
+      blockNumber: 0n,
+      blockTimestamp: 0n,
     });
 
     const mockEvent = UmaSportsOracle.MarketEmergencyResolved.createMockEvent({

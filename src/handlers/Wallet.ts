@@ -35,6 +35,8 @@ RelayHub.TransactionRelayed.handler(async ({ event, context }) => {
       balance: 0n,
       lastTransfer: 0n,
       createdAt: BigInt(event.block.timestamp),
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
     });
   }
 });
@@ -55,6 +57,8 @@ SafeProxyFactory.ProxyCreation.handler(async ({ event, context }) => {
       balance: 0n,
       lastTransfer: 0n,
       createdAt: BigInt(event.block.timestamp),
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
     });
   }
 });
@@ -68,6 +72,7 @@ USDC.Transfer.handler(async ({ event, context }) => {
   const to = event.params.to;
   const amount = event.params.amount;
   const timestamp = BigInt(event.block.timestamp);
+  const blockNumber = BigInt(event.block.number);
 
   // Check receiver
   const toWallet = await context.Wallet.get(to);
@@ -76,6 +81,8 @@ USDC.Transfer.handler(async ({ event, context }) => {
       ...toWallet,
       balance: toWallet.balance + amount,
       lastTransfer: timestamp,
+      blockNumber,
+      blockTimestamp: timestamp,
     });
 
     // Update global balance
@@ -84,11 +91,15 @@ USDC.Transfer.handler(async ({ event, context }) => {
       context.GlobalUSDCBalance.set({
         ...global,
         balance: global.balance + amount,
+        blockNumber,
+        blockTimestamp: timestamp,
       });
     } else {
       context.GlobalUSDCBalance.set({
         id: GLOBAL_USDC_ID,
         balance: amount,
+        blockNumber,
+        blockTimestamp: timestamp,
       });
     }
   }
@@ -100,6 +111,8 @@ USDC.Transfer.handler(async ({ event, context }) => {
       ...fromWallet,
       balance: fromWallet.balance - amount,
       lastTransfer: timestamp,
+      blockNumber,
+      blockTimestamp: timestamp,
     });
 
     // Update global balance
@@ -108,11 +121,15 @@ USDC.Transfer.handler(async ({ event, context }) => {
       context.GlobalUSDCBalance.set({
         ...global,
         balance: global.balance - amount,
+        blockNumber,
+        blockTimestamp: timestamp,
       });
     } else {
       context.GlobalUSDCBalance.set({
         id: GLOBAL_USDC_ID,
         balance: 0n - amount,
+        blockNumber,
+        blockTimestamp: timestamp,
       });
     }
   }
