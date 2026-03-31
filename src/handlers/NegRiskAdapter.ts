@@ -402,3 +402,20 @@ NegRiskAdapter.PositionsConverted.handler(async ({ event, context }) => {
     }
   }
 });
+
+// ============================================================
+// OutcomeReported — market outcome resolution records
+// ============================================================
+
+NegRiskAdapter.OutcomeReported.handler(async ({ event, context }) => {
+  context.OutcomeReportedEvent.set({
+    id: getEventKey(event.chainId, event.block.number, event.logIndex),
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
+    marketId: event.params.marketId,
+    questionId: event.params.questionId,
+    outcome: event.params.outcome,
+  });
+});

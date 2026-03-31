@@ -20,6 +20,7 @@ const NEG_RISK_ADAPTER_LOWER = NEG_RISK_ADAPTER.toLowerCase();
 const EXCHANGE_LOWER = EXCHANGE.toLowerCase();
 const NEG_RISK_EXCHANGE_LOWER = NEG_RISK_EXCHANGE.toLowerCase();
 const NEG_RISK_WRAPPED = "0x3A3BD7bb9528E159577F7C2e685CC81A765002E2" as `0x${string}`;
+const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 // Addresses to skip for activity tracking (handled elsewhere)
 const SKIP_ACTIVITY = new Set([
@@ -336,6 +337,91 @@ ConditionalTokens.PayoutRedemption.handler(async ({ event, context }) => {
         blockNumber,
         blockTimestamp,
       );
+    }
+  }
+});
+
+// ============================================================
+// TransferSingle — ERC1155 share balance tracking
+// ============================================================
+
+ConditionalTokens.TransferSingle.handler(async ({ event, context }) => {
+  const from = event.params.from;
+  const to = event.params.to;
+  const tokenId = event.params.id;
+  const value = event.params.value;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
+
+  // Decrease sender balance (skip zero address = mint)
+  if (from !== ADDRESS_ZERO) {
+    const fromId = `${from}-${tokenId}`;
+    const fromBalance = await context.ShareBalance.get(fromId);
+    context.ShareBalance.set({
+      id: fromId,
+      blockNumber,
+      blockTimestamp,
+      owner: from,
+      tokenId,
+      balance: (fromBalance?.balance ?? 0n) - value,
+    });
+  }
+
+  // Increase receiver balance (skip zero address = burn)
+  if (to !== ADDRESS_ZERO) {
+    const toId = `${to}-${tokenId}`;
+    const toBalance = await context.ShareBalance.get(toId);
+    context.ShareBalance.set({
+      id: toId,
+      blockNumber,
+      blockTimestamp,
+      owner: to,
+      tokenId,
+      balance: (toBalance?.balance ?? 0n) + value,
+    });
+  }
+});
+
+// ============================================================
+// TransferBatch — ERC1155 batch share balance tracking
+// ============================================================
+
+ConditionalTokens.TransferBatch.handler(async ({ event, context }) => {
+  const from = event.params.from;
+  const to = event.params.to;
+  const ids = event.params.ids;
+  const values = event.params.values;
+  const blockNumber = BigInt(event.block.number);
+  const blockTimestamp = BigInt(event.block.timestamp);
+
+  for (let i = 0; i < ids.length; i++) {
+    const tokenId = ids[i]!;
+    const value = values[i]!;
+
+    if (from !== ADDRESS_ZERO) {
+      const fromId = `${from}-${tokenId}`;
+      const fromBalance = await context.ShareBalance.get(fromId);
+      context.ShareBalance.set({
+        id: fromId,
+        blockNumber,
+        blockTimestamp,
+        owner: from,
+        tokenId,
+        balance: (fromBalance?.balance ?? 0n) - value,
+      });
+    }
+
+    if (to !== ADDRESS_ZERO) {
+      const toId = `${to}-${tokenId}`;
+      const toBalance = await context.ShareBalance.get(toId);
+      context.ShareBalance.set({
+        id: toId,
+        blockNumber,
+        blockTimestamp,
+        owner: to,
+        tokenId,
+        balance: (toBalance?.balance ?? 0n) + value,
+      });
     }
   }
 });

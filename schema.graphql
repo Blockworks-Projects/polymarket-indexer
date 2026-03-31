@@ -17,6 +17,18 @@ type FeeRefunded @index(fields: ["refundee", ["timestamp", "DESC"]]) {
   negRisk: Boolean!
 }
 
+type FeeWithdrawn {
+  id: ID!
+  blockNumber: BigInt! @index
+  blockTimestamp: BigInt!
+  logIndex: Int!
+  transactionHash: String!
+  token: String! @index
+  to: String! @index
+  tokenId: String! @index
+  amount: BigInt!
+}
+
 ## ============================================================
 ## Phase 1B: Sports Oracle
 ## ============================================================
@@ -115,6 +127,26 @@ type OrdersMatchedEvent {
   takerAmountFilled: BigInt!
 }
 
+type OrderCancelledEvent {
+  id: ID!
+  blockNumber: BigInt! @index
+  blockTimestamp: BigInt!
+  logIndex: Int!
+  transactionHash: String!
+  orderHash: String! @index
+}
+
+type FeeChargedEvent {
+  id: ID!
+  blockNumber: BigInt! @index
+  blockTimestamp: BigInt!
+  logIndex: Int!
+  transactionHash: String!
+  receiver: String! @index
+  tokenId: String! @index
+  amount: BigInt!
+}
+
 type Orderbook {
   id: ID!
   blockNumber: BigInt!
@@ -164,6 +196,17 @@ type NegRiskEvent {
   blockTimestamp: BigInt!
   feeBps: BigInt!
   questionCount: BigInt!
+}
+
+type OutcomeReportedEvent {
+  id: ID!
+  blockNumber: BigInt! @index
+  blockTimestamp: BigInt!
+  logIndex: Int!
+  transactionHash: String!
+  marketId: String! @index
+  questionId: String! @index
+  outcome: Boolean!
 }
 
 type MarketOpenInterest {
@@ -280,6 +323,19 @@ type FixedProductMarketMaker {
   outcomeSlotCount: BigInt
   lastActiveDay: BigInt!
   totalSupply: BigInt!
+}
+
+## ============================================================
+## Phase 3C: Share Balances
+## ============================================================
+
+type ShareBalance @index(fields: ["owner", "tokenId"]) {
+  id: ID!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  owner: String! @index
+  tokenId: BigInt! @index
+  balance: BigInt!
 }
 
 ## ============================================================

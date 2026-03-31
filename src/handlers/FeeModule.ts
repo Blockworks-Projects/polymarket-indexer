@@ -20,3 +20,17 @@ FeeModule.FeeRefunded.handler(async ({ event, context }) => {
     negRisk,
   });
 });
+
+FeeModule.FeeWithdrawn.handler(async ({ event, context }) => {
+  context.FeeWithdrawn.set({
+    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
+    token: event.params.token,
+    to: event.params.to,
+    tokenId: event.params.id.toString(),
+    amount: event.params.amount,
+  });
+});

@@ -124,6 +124,23 @@ UmaSportsOracle.GameUnpaused.handler(async ({ event, context }) => {
   });
 });
 
+UmaSportsOracle.GameReset.handler(async ({ event, context }) => {
+  const gameId = event.params.gameId.toLowerCase();
+  const game = await context.Game.get(gameId);
+  if (!game) {
+    context.log.error(`Game not found: ${gameId}`);
+    return;
+  }
+  context.Game.set({
+    ...game,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    state: GameStateCreated,
+    homeScore: 0n,
+    awayScore: 0n,
+  });
+});
+
 // ============================================================
 // Market event handlers
 // ============================================================

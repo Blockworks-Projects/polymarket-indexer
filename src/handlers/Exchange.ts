@@ -240,8 +240,6 @@ Exchange.TokenRegistered.handler(async ({ event, context }) => {
   const token0Str = event.params.token0.toString();
   const token1Str = event.params.token1.toString();
   const condition = event.params.conditionId;
-  const blockNumber = BigInt(event.block.number);
-  const blockTimestamp = BigInt(event.block.timestamp);
 
   // Fetch market metadata from Polymarket Gamma API (cached + rate-limited)
   const metadata = await context.effect(getMarketMetadata, token0Str);
@@ -284,4 +282,36 @@ Exchange.TokenRegistered.handler(async ({ event, context }) => {
       endDate,
     });
   }
+});
+
+// ============================================================
+// OrderCancelled — order cancellation records
+// ============================================================
+
+Exchange.OrderCancelled.handler(async ({ event, context }) => {
+  context.OrderCancelledEvent.set({
+    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
+    orderHash: event.params.orderHash,
+  });
+});
+
+// ============================================================
+// FeeCharged — fee charge records
+// ============================================================
+
+Exchange.FeeCharged.handler(async ({ event, context }) => {
+  context.FeeChargedEvent.set({
+    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
+    receiver: event.params.receiver,
+    tokenId: event.params.tokenId.toString(),
+    amount: event.params.amount,
+  });
 });
