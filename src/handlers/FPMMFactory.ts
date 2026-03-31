@@ -39,6 +39,8 @@ FPMMFactory.FixedProductMarketMakerCreation.handler(
 
     context.FixedProductMarketMaker.set({
       id: fpmmAddress,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
       creator: event.params.creator,
       creationTimestamp: BigInt(event.block.timestamp),
       creationTransactionHash: event.transaction.hash,
@@ -67,8 +69,6 @@ FPMMFactory.FixedProductMarketMakerCreation.handler(
       sellsQuantity: 0n,
       liquidityAddQuantity: 0n,
       liquidityRemoveQuantity: 0n,
-      blockNumber: BigInt(event.block.number),
-      blockTimestamp: BigInt(event.block.timestamp),
     });
   },
 );

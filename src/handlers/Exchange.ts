@@ -91,6 +91,9 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
   const eventId = `${event.chainId}_${event.block.number}_${event.logIndex}`;
   context.OrderFilledEvent.set({
     id: eventId,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: event.logIndex,
     transactionHash: event.transaction.hash,
     timestamp: BigInt(event.block.timestamp),
     orderHash: event.params.orderHash,
@@ -101,8 +104,6 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
     makerAmountFilled: event.params.makerAmountFilled,
     takerAmountFilled: event.params.takerAmountFilled,
     fee: event.params.fee,
-    blockNumber: BigInt(event.block.number),
-    blockTimestamp: BigInt(event.block.timestamp),
   });
 
   const blockNumber = BigInt(event.block.number);
@@ -116,27 +117,27 @@ Exchange.OrderFilled.handler(async ({ event, context }) => {
     const newBuyVol = orderbook.collateralBuyVolume + size;
     context.Orderbook.set({
       ...orderbook,
+      blockNumber,
+      blockTimestamp,
       collateralVolume: newVolume,
       scaledCollateralVolume: scaleBigInt(newVolume),
       tradesQuantity: orderbook.tradesQuantity + 1n,
       buysQuantity: orderbook.buysQuantity + 1n,
       collateralBuyVolume: newBuyVol,
       scaledCollateralBuyVolume: scaleBigInt(newBuyVol),
-      blockNumber,
-      blockTimestamp,
     });
   } else {
     const newSellVol = orderbook.collateralSellVolume + size;
     context.Orderbook.set({
       ...orderbook,
+      blockNumber,
+      blockTimestamp,
       collateralVolume: newVolume,
       scaledCollateralVolume: scaleBigInt(newVolume),
       tradesQuantity: orderbook.tradesQuantity + 1n,
       sellsQuantity: orderbook.sellsQuantity + 1n,
       collateralSellVolume: newSellVol,
       scaledCollateralSellVolume: scaleBigInt(newSellVol),
-      blockNumber,
-      blockTimestamp,
     });
   }
 
@@ -184,13 +185,15 @@ Exchange.OrdersMatched.handler(async ({ event, context }) => {
   // Record OrdersMatchedEvent
   context.OrdersMatchedEvent.set({
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
     timestamp: BigInt(event.block.timestamp),
     makerAssetID: event.params.makerAssetId,
     takerAssetID: event.params.takerAssetId,
     makerAmountFilled: event.params.makerAmountFilled,
     takerAmountFilled: event.params.takerAmountFilled,
-    blockNumber: BigInt(event.block.number),
-    blockTimestamp: BigInt(event.block.timestamp),
   });
 
   const blockNumber = BigInt(event.block.number);
@@ -204,27 +207,27 @@ Exchange.OrdersMatched.handler(async ({ event, context }) => {
     const newBuyVol = global.collateralBuyVolume + size;
     context.OrdersMatchedGlobal.set({
       ...global,
+      blockNumber,
+      blockTimestamp,
       tradesQuantity: global.tradesQuantity + 1n,
       collateralVolume: newVolume,
       scaledCollateralVolume: scaleBigInt(newVolume),
       buysQuantity: global.buysQuantity + 1n,
       collateralBuyVolume: newBuyVol,
       scaledCollateralBuyVolume: scaleBigInt(newBuyVol),
-      blockNumber,
-      blockTimestamp,
     });
   } else {
     const newSellVol = global.collateralSellVolume + size;
     context.OrdersMatchedGlobal.set({
       ...global,
+      blockNumber,
+      blockTimestamp,
       tradesQuantity: global.tradesQuantity + 1n,
       collateralVolume: newVolume,
       scaledCollateralVolume: scaleBigInt(newVolume),
       sellsQuantity: global.sellsQuantity + 1n,
       collateralSellVolume: newSellVol,
       scaledCollateralSellVolume: scaleBigInt(newSellVol),
-      blockNumber,
-      blockTimestamp,
     });
   }
 });
@@ -263,8 +266,6 @@ Exchange.TokenRegistered.handler(async ({ event, context }) => {
       image,
       startDate,
       endDate,
-      blockNumber,
-      blockTimestamp,
     });
   }
 
@@ -281,8 +282,6 @@ Exchange.TokenRegistered.handler(async ({ event, context }) => {
       image,
       startDate,
       endDate,
-      blockNumber,
-      blockTimestamp,
     });
   }
 });

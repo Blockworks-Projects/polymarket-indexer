@@ -55,9 +55,9 @@ async function updateMarketOI(
   const marketOI = await getOrCreateMarketOI(context, conditionId);
   context.MarketOpenInterest.set({
     ...marketOI,
-    amount: marketOI.amount + amount,
     blockNumber,
     blockTimestamp,
+    amount: marketOI.amount + amount,
   });
 }
 
@@ -70,9 +70,9 @@ async function updateGlobalOI(
   const globalOI = await getOrCreateGlobalOI(context);
   context.GlobalOpenInterest.set({
     ...globalOI,
-    amount: globalOI.amount + amount,
     blockNumber,
     blockTimestamp,
+    amount: globalOI.amount + amount,
   });
 }
 
@@ -94,10 +94,10 @@ async function updateOpenInterest(
 NegRiskAdapter.MarketPrepared.handler(async ({ event, context }) => {
   context.NegRiskEvent.set({
     id: event.params.marketId,
-    feeBps: event.params.feeBips,
-    questionCount: 0n,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    feeBps: event.params.feeBips,
+    questionCount: 0n,
   });
 });
 
@@ -111,9 +111,9 @@ NegRiskAdapter.QuestionPrepared.handler(async ({ event, context }) => {
 
   context.NegRiskEvent.set({
     ...negRiskEvent,
-    questionCount: negRiskEvent.questionCount + 1n,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    questionCount: negRiskEvent.questionCount + 1n,
   });
 });
 
@@ -138,6 +138,10 @@ NegRiskAdapter.PositionSplit.handler(async ({ event, context }) => {
   if (!skipExchange) {
     context.Split.set({
       id: getEventKey(event.chainId, event.block.number, event.logIndex),
+      blockNumber,
+      blockTimestamp,
+      logIndex: event.logIndex,
+      transactionHash: event.transaction.hash,
       timestamp: blockTimestamp,
       stakeholder,
       condition: conditionId,
@@ -183,6 +187,10 @@ NegRiskAdapter.PositionsMerge.handler(async ({ event, context }) => {
   if (!skipExchange) {
     context.Merge.set({
       id: getEventKey(event.chainId, event.block.number, event.logIndex),
+      blockNumber,
+      blockTimestamp,
+      logIndex: event.logIndex,
+      transactionHash: event.transaction.hash,
       timestamp: blockTimestamp,
       stakeholder,
       condition: conditionId,
@@ -225,6 +233,10 @@ NegRiskAdapter.PayoutRedemption.handler(async ({ event, context }) => {
   // Activity: Create Redemption with default indexSets for binary
   context.Redemption.set({
     id: getEventKey(event.chainId, event.block.number, event.logIndex),
+    blockNumber,
+    blockTimestamp,
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
     timestamp: blockTimestamp,
     redeemer: event.params.redeemer,
     condition: conditionId,
@@ -273,6 +285,10 @@ NegRiskAdapter.PositionsConverted.handler(async ({ event, context }) => {
   // Activity: Create NegRiskConversion
   context.NegRiskConversion.set({
     id: getEventKey(event.chainId, event.block.number, event.logIndex),
+    blockNumber,
+    blockTimestamp,
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
     timestamp: blockTimestamp,
     stakeholder,
     negRiskMarketId: marketId,

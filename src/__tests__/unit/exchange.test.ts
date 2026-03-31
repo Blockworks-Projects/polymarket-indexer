@@ -250,8 +250,6 @@ describe("Exchange - TokenRegistered idempotency", () => {
       image: "",
       startDate: "",
       endDate: "",
-      blockNumber: 0n,
-      blockTimestamp: 0n,
     });
 
     const mockEvent = Exchange.TokenRegistered.createMockEvent({

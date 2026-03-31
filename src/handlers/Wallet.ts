@@ -30,13 +30,13 @@ RelayHub.TransactionRelayed.handler(async ({ event, context }) => {
   if (!existing) {
     context.Wallet.set({
       id: walletAddress,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
       signer: from,
       type: "proxy",
       balance: 0n,
       lastTransfer: 0n,
       createdAt: BigInt(event.block.timestamp),
-      blockNumber: BigInt(event.block.number),
-      blockTimestamp: BigInt(event.block.timestamp),
     });
   }
 });
@@ -52,13 +52,13 @@ SafeProxyFactory.ProxyCreation.handler(async ({ event, context }) => {
   if (!existing) {
     context.Wallet.set({
       id: proxyAddress,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
       signer: event.params.owner,
       type: "safe",
       balance: 0n,
       lastTransfer: 0n,
       createdAt: BigInt(event.block.timestamp),
-      blockNumber: BigInt(event.block.number),
-      blockTimestamp: BigInt(event.block.timestamp),
     });
   }
 });
@@ -79,10 +79,10 @@ USDC.Transfer.handler(async ({ event, context }) => {
   if (toWallet) {
     context.Wallet.set({
       ...toWallet,
-      balance: toWallet.balance + amount,
-      lastTransfer: timestamp,
       blockNumber,
       blockTimestamp: timestamp,
+      balance: toWallet.balance + amount,
+      lastTransfer: timestamp,
     });
 
     // Update global balance
@@ -90,16 +90,16 @@ USDC.Transfer.handler(async ({ event, context }) => {
     if (global) {
       context.GlobalUSDCBalance.set({
         ...global,
-        balance: global.balance + amount,
         blockNumber,
         blockTimestamp: timestamp,
+        balance: global.balance + amount,
       });
     } else {
       context.GlobalUSDCBalance.set({
         id: GLOBAL_USDC_ID,
-        balance: amount,
         blockNumber,
         blockTimestamp: timestamp,
+        balance: amount,
       });
     }
   }
@@ -109,10 +109,10 @@ USDC.Transfer.handler(async ({ event, context }) => {
   if (fromWallet) {
     context.Wallet.set({
       ...fromWallet,
-      balance: fromWallet.balance - amount,
-      lastTransfer: timestamp,
       blockNumber,
       blockTimestamp: timestamp,
+      balance: fromWallet.balance - amount,
+      lastTransfer: timestamp,
     });
 
     // Update global balance
@@ -120,16 +120,16 @@ USDC.Transfer.handler(async ({ event, context }) => {
     if (global) {
       context.GlobalUSDCBalance.set({
         ...global,
-        balance: global.balance - amount,
         blockNumber,
         blockTimestamp: timestamp,
+        balance: global.balance - amount,
       });
     } else {
       context.GlobalUSDCBalance.set({
         id: GLOBAL_USDC_ID,
-        balance: 0n - amount,
         blockNumber,
         blockTimestamp: timestamp,
+        balance: 0n - amount,
       });
     }
   }

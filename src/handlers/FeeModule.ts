@@ -7,6 +7,10 @@ FeeModule.FeeRefunded.handler(async ({ event, context }) => {
 
   context.FeeRefunded.set({
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
     orderHash: event.params.orderHash,
     tokenId: event.params.id.toString(),
     timestamp: BigInt(event.block.timestamp),
@@ -14,7 +18,5 @@ FeeModule.FeeRefunded.handler(async ({ event, context }) => {
     feeRefunded: event.params.refund,
     feeCharged: event.params.feeCharged,
     negRisk,
-    blockNumber: BigInt(event.block.number),
-    blockTimestamp: BigInt(event.block.timestamp),
   });
 });

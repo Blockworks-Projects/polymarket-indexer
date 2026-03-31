@@ -35,13 +35,13 @@ UmaSportsOracle.GameCreated.handler(async ({ event, context }) => {
   const gameId = event.params.gameId.toLowerCase();
   context.Game.set({
     id: gameId,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
     ancillaryData: event.params.ancillaryData,
     ordering: getGameOrdering(event.params.ordering),
     state: GameStateCreated,
     homeScore: 0n,
     awayScore: 0n,
-    blockNumber: BigInt(event.block.number),
-    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -54,11 +54,11 @@ UmaSportsOracle.GameSettled.handler(async ({ event, context }) => {
   }
   context.Game.set({
     ...game,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
     state: GameStateSettled,
     homeScore: event.params.home,
     awayScore: event.params.away,
-    blockNumber: BigInt(event.block.number),
-    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -71,11 +71,11 @@ UmaSportsOracle.GameEmergencySettled.handler(async ({ event, context }) => {
   }
   context.Game.set({
     ...game,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
     state: GameStateEmergencySettled,
     homeScore: event.params.home,
     awayScore: event.params.away,
-    blockNumber: BigInt(event.block.number),
-    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -88,9 +88,9 @@ UmaSportsOracle.GameCanceled.handler(async ({ event, context }) => {
   }
   context.Game.set({
     ...game,
-    state: GameStateCanceled,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    state: GameStateCanceled,
   });
 });
 
@@ -103,9 +103,9 @@ UmaSportsOracle.GamePaused.handler(async ({ event, context }) => {
   }
   context.Game.set({
     ...game,
-    state: GameStatePaused,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    state: GameStatePaused,
   });
 });
 
@@ -118,9 +118,9 @@ UmaSportsOracle.GameUnpaused.handler(async ({ event, context }) => {
   }
   context.Game.set({
     ...game,
-    state: GameStateCreated, // Unpaused reverts to Created state
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    state: GameStateCreated, // Unpaused reverts to Created state
   });
 });
 
@@ -132,14 +132,14 @@ UmaSportsOracle.MarketCreated.handler(async ({ event, context }) => {
   const marketId = event.params.marketId.toLowerCase();
   context.Market.set({
     id: marketId,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
     gameId: event.params.gameId.toLowerCase(),
     state: MarketStateCreated,
     marketType: getMarketType(event.params.marketType),
     underdog: getMarketUnderdog(event.params.underdog),
     line: event.params.line,
     payouts: [],
-    blockNumber: BigInt(event.block.number),
-    blockTimestamp: BigInt(event.block.timestamp),
   });
 });
 
@@ -152,10 +152,10 @@ UmaSportsOracle.MarketResolved.handler(async ({ event, context }) => {
   }
   context.Market.set({
     ...market,
-    state: MarketStateResolved,
-    payouts: event.params.payouts,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    state: MarketStateResolved,
+    payouts: event.params.payouts,
   });
 });
 
@@ -169,10 +169,10 @@ UmaSportsOracle.MarketEmergencyResolved.handler(
     }
     context.Market.set({
       ...market,
-      state: MarketStateEmergencyResolved,
-      payouts: event.params.payouts,
       blockNumber: BigInt(event.block.number),
       blockTimestamp: BigInt(event.block.timestamp),
+      state: MarketStateEmergencyResolved,
+      payouts: event.params.payouts,
     });
   },
 );
@@ -186,9 +186,9 @@ UmaSportsOracle.MarketPaused.handler(async ({ event, context }) => {
   }
   context.Market.set({
     ...market,
-    state: MarketStatePaused,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    state: MarketStatePaused,
   });
 });
 
@@ -201,8 +201,8 @@ UmaSportsOracle.MarketUnpaused.handler(async ({ event, context }) => {
   }
   context.Market.set({
     ...market,
-    state: MarketStateCreated, // Unpaused reverts to Created state
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    state: MarketStateCreated, // Unpaused reverts to Created state
   });
 });

@@ -71,6 +71,8 @@ FixedProductMarketMaker.FPMMBuy.handler(async ({ event, context }) => {
 
   context.FixedProductMarketMaker.set({
     ...fpmm,
+    blockNumber,
+    blockTimestamp,
     outcomeTokenAmounts: newAmounts,
     outcomeTokenPrices: calculatePrices(newAmounts),
     liquidityParameter,
@@ -84,13 +86,15 @@ FixedProductMarketMaker.FPMMBuy.handler(async ({ event, context }) => {
     lastActiveDay: timestampToDay(event.block.timestamp),
     tradesQuantity: fpmm.tradesQuantity + 1n,
     buysQuantity: fpmm.buysQuantity + 1n,
-    blockNumber,
-    blockTimestamp,
   });
 
   // Record transaction
   context.FpmmTransaction.set({
     id: getEventKey(event.chainId, event.block.number, event.logIndex),
+    blockNumber,
+    blockTimestamp,
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
     type: "Buy",
     timestamp: BigInt(event.block.timestamp),
     market_id: fpmmAddress,
@@ -99,8 +103,6 @@ FixedProductMarketMaker.FPMMBuy.handler(async ({ event, context }) => {
     feeAmount: event.params.feeAmount,
     outcomeIndex: event.params.outcomeIndex,
     outcomeTokensAmount: event.params.outcomeTokensBought,
-    blockNumber,
-    blockTimestamp,
   });
 
   // PnL: Buy outcome token
@@ -169,6 +171,8 @@ FixedProductMarketMaker.FPMMSell.handler(async ({ event, context }) => {
 
   context.FixedProductMarketMaker.set({
     ...fpmm,
+    blockNumber,
+    blockTimestamp,
     outcomeTokenAmounts: newAmounts,
     outcomeTokenPrices: calculatePrices(newAmounts),
     liquidityParameter,
@@ -182,13 +186,15 @@ FixedProductMarketMaker.FPMMSell.handler(async ({ event, context }) => {
     lastActiveDay: timestampToDay(event.block.timestamp),
     tradesQuantity: fpmm.tradesQuantity + 1n,
     sellsQuantity: fpmm.sellsQuantity + 1n,
-    blockNumber,
-    blockTimestamp,
   });
 
   // Record transaction
   context.FpmmTransaction.set({
     id: getEventKey(event.chainId, event.block.number, event.logIndex),
+    blockNumber,
+    blockTimestamp,
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
     type: "Sell",
     timestamp: BigInt(event.block.timestamp),
     market_id: fpmmAddress,
@@ -197,8 +203,6 @@ FixedProductMarketMaker.FPMMSell.handler(async ({ event, context }) => {
     feeAmount: event.params.feeAmount,
     outcomeIndex: event.params.outcomeIndex,
     outcomeTokensAmount: event.params.outcomeTokensSold,
-    blockNumber,
-    blockTimestamp,
   });
 
   // PnL: Sell outcome token
@@ -262,14 +266,14 @@ FixedProductMarketMaker.FPMMFundingAdded.handler(async ({ event, context }) => {
 
   context.FixedProductMarketMaker.set({
     ...fpmm,
+    blockNumber,
+    blockTimestamp,
     outcomeTokenAmounts: newAmounts,
     outcomeTokenPrices: newPrices,
     liquidityParameter,
     scaledLiquidityParameter: scaleBigInt(liquidityParameter),
     totalSupply: newTotalSupply,
     liquidityAddQuantity: fpmm.liquidityAddQuantity + 1n,
-    blockNumber,
-    blockTimestamp,
   });
 
   // Compute amountsRefunded
@@ -282,14 +286,16 @@ FixedProductMarketMaker.FPMMFundingAdded.handler(async ({ event, context }) => {
   // Record funding addition
   context.FpmmFundingAddition.set({
     id: getEventKey(event.chainId, event.block.number, event.logIndex),
+    blockNumber,
+    blockTimestamp,
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
     timestamp: BigInt(event.block.timestamp),
     fpmm_id: fpmmAddress,
     funder: event.params.funder,
     amountsAdded: amountsAdded.map((v: bigint) => v),
     amountsRefunded,
     sharesMinted: event.params.sharesMinted,
-    blockNumber,
-    blockTimestamp,
   });
 
   // PnL: Funding added = buy sendback token + buy LP shares
@@ -380,27 +386,29 @@ FixedProductMarketMaker.FPMMFundingRemoved.handler(
 
     context.FixedProductMarketMaker.set({
       ...fpmm,
+      blockNumber,
+      blockTimestamp,
       outcomeTokenAmounts: newAmounts,
       outcomeTokenPrices: newPrices,
       liquidityParameter,
       scaledLiquidityParameter: scaleBigInt(liquidityParameter),
       totalSupply: newTotalSupply,
       liquidityRemoveQuantity: fpmm.liquidityRemoveQuantity + 1n,
-      blockNumber,
-      blockTimestamp,
     });
 
     // Record funding removal
     context.FpmmFundingRemoval.set({
       id: getEventKey(event.chainId, event.block.number, event.logIndex),
+      blockNumber,
+      blockTimestamp,
+      logIndex: event.logIndex,
+      transactionHash: event.transaction.hash,
       timestamp: BigInt(event.block.timestamp),
       fpmm_id: fpmmAddress,
       funder: event.params.funder,
       amountsRemoved: amountsRemoved.map((v: bigint) => v),
       collateralRemoved: event.params.collateralRemovedFromFeePool,
       sharesBurnt: event.params.sharesBurnt,
-      blockNumber,
-      blockTimestamp,
     });
 
     // PnL: Funding removed = buy tokens at market price + sell LP shares
@@ -469,9 +477,9 @@ FixedProductMarketMaker.Transfer.handler(async ({ event, context }) => {
     const fromMembership = await loadPoolMembership(context, fpmmAddress, from);
     context.FpmmPoolMembership.set({
       ...fromMembership,
-      amount: fromMembership.amount - value,
       blockNumber,
       blockTimestamp,
+      amount: fromMembership.amount - value,
     });
   }
 
@@ -479,9 +487,9 @@ FixedProductMarketMaker.Transfer.handler(async ({ event, context }) => {
     const toMembership = await loadPoolMembership(context, fpmmAddress, to);
     context.FpmmPoolMembership.set({
       ...toMembership,
-      amount: toMembership.amount + value,
       blockNumber,
       blockTimestamp,
+      amount: toMembership.amount + value,
     });
   }
 });

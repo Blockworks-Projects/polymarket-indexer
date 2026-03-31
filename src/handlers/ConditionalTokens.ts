@@ -66,17 +66,17 @@ async function updateOpenInterest(
   const marketOI = await getOrCreateMarketOI(context, conditionId);
   context.MarketOpenInterest.set({
     ...marketOI,
-    amount: marketOI.amount + amount,
     blockNumber,
     blockTimestamp,
+    amount: marketOI.amount + amount,
   });
 
   const globalOI = await getOrCreateGlobalOI(context);
   context.GlobalOpenInterest.set({
     ...globalOI,
-    amount: globalOI.amount + amount,
     blockNumber,
     blockTimestamp,
+    amount: globalOI.amount + amount,
   });
 }
 
@@ -117,11 +117,11 @@ ConditionalTokens.ConditionPreparation.handler(async ({ event, context }) => {
   if (!existing) {
     context.Condition.set({
       id: conditionId,
+      blockNumber,
+      blockTimestamp,
       positionIds: [posId0, posId1],
       payoutNumerators: [] as bigint[],
       payoutDenominator: 0n,
-      blockNumber,
-      blockTimestamp,
     });
   }
 
@@ -136,8 +136,6 @@ ConditionalTokens.ConditionPreparation.handler(async ({ event, context }) => {
         id: posIdStr,
         condition: conditionId,
         outcomeIndex: BigInt(outcomeIndex),
-        blockNumber,
-        blockTimestamp,
       });
     }
   }
@@ -160,10 +158,10 @@ ConditionalTokens.ConditionResolution.handler(async ({ event, context }) => {
 
   context.Condition.set({
     ...condition,
-    payoutNumerators,
-    payoutDenominator,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
+    payoutNumerators,
+    payoutDenominator,
   });
 });
 
@@ -188,6 +186,10 @@ ConditionalTokens.PositionSplit.handler(async ({ event, context }) => {
     if (!isFPMM) {
       context.Split.set({
         id: getEventKey(event.chainId, event.block.number, event.logIndex),
+        blockNumber,
+        blockTimestamp,
+        logIndex: event.logIndex,
+        transactionHash: event.transaction.hash,
         timestamp: blockTimestamp,
         stakeholder,
         condition: conditionId,
@@ -239,6 +241,10 @@ ConditionalTokens.PositionsMerge.handler(async ({ event, context }) => {
     if (!isFPMM) {
       context.Merge.set({
         id: getEventKey(event.chainId, event.block.number, event.logIndex),
+        blockNumber,
+        blockTimestamp,
+        logIndex: event.logIndex,
+        transactionHash: event.transaction.hash,
         timestamp: blockTimestamp,
         stakeholder,
         condition: conditionId,
@@ -287,6 +293,10 @@ ConditionalTokens.PayoutRedemption.handler(async ({ event, context }) => {
   if (redeemer.toLowerCase() !== NEG_RISK_ADAPTER_LOWER) {
     context.Redemption.set({
       id: getEventKey(event.chainId, event.block.number, event.logIndex),
+      blockNumber,
+      blockTimestamp,
+      logIndex: event.logIndex,
+      transactionHash: event.transaction.hash,
       timestamp: blockTimestamp,
       redeemer,
       condition: conditionId,
