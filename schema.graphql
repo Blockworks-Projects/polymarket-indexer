@@ -4,7 +4,7 @@
 
 type FeeRefunded @index(fields: ["refundee", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -87,7 +87,7 @@ type OrderFilledEvent
   @index(fields: ["maker", ["timestamp", "DESC"]])
   @index(fields: ["makerAssetId", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -104,7 +104,7 @@ type OrderFilledEvent
 
 type OrdersMatchedEvent {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -188,7 +188,7 @@ type Split
   @index(fields: ["stakeholder", ["timestamp", "DESC"]])
   @index(fields: ["condition", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -202,7 +202,7 @@ type Merge
   @index(fields: ["stakeholder", ["timestamp", "DESC"]])
   @index(fields: ["condition", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -216,7 +216,7 @@ type Redemption
   @index(fields: ["redeemer", ["timestamp", "DESC"]])
   @index(fields: ["condition", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -231,7 +231,7 @@ type NegRiskConversion
   @index(fields: ["stakeholder", ["timestamp", "DESC"]])
   @index(fields: ["negRiskMarketId", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -318,7 +318,7 @@ type FpmmTransaction
   @index(fields: ["market_id", ["timestamp", "DESC"]])
   @index(fields: ["user", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -336,7 +336,7 @@ type FpmmFundingAddition
   @index(fields: ["fpmm_id", ["timestamp", "DESC"]])
   @index(fields: ["funder", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
@@ -352,7 +352,7 @@ type FpmmFundingRemoval
   @index(fields: ["fpmm_id", ["timestamp", "DESC"]])
   @index(fields: ["funder", ["timestamp", "DESC"]]) {
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: BigInt! @index
   blockTimestamp: BigInt!
   logIndex: Int!
   transactionHash: String!
