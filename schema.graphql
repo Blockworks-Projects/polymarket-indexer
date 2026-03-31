@@ -329,6 +329,39 @@ type FixedProductMarketMaker {
 ## Phase 3C: Share Balances
 ## ============================================================
 
+type ShareTransferSingle
+  @index(fields: ["from", ["timestamp", "DESC"]])
+  @index(fields: ["to", ["timestamp", "DESC"]])
+  @index(fields: ["tokenId", ["timestamp", "DESC"]]) {
+  id: ID!
+  blockNumber: BigInt! @index
+  blockTimestamp: BigInt!
+  logIndex: Int!
+  transactionHash: String!
+  timestamp: BigInt! @index
+  operator: String! @index
+  from: String! @index
+  to: String! @index
+  tokenId: BigInt! @index
+  value: BigInt!
+}
+
+type ShareTransferBatch
+  @index(fields: ["from", ["timestamp", "DESC"]])
+  @index(fields: ["to", ["timestamp", "DESC"]]) {
+  id: ID!
+  blockNumber: BigInt! @index
+  blockTimestamp: BigInt!
+  logIndex: Int!
+  transactionHash: String!
+  timestamp: BigInt! @index
+  operator: String! @index
+  from: String! @index
+  to: String! @index
+  tokenIds: [BigInt!]!
+  values: [BigInt!]!
+}
+
 type ShareBalance @index(fields: ["owner", "tokenId"]) {
   id: ID!
   blockNumber: BigInt!

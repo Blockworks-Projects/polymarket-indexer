@@ -353,6 +353,22 @@ ConditionalTokens.TransferSingle.handler(async ({ event, context }) => {
   const blockNumber = BigInt(event.block.number);
   const blockTimestamp = BigInt(event.block.timestamp);
 
+  // Store raw transfer event
+  const transferId = `${event.transaction.hash}-${event.logIndex}`;
+  context.ShareTransferSingle.set({
+    id: transferId,
+    blockNumber,
+    blockTimestamp,
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
+    timestamp: blockTimestamp,
+    operator: event.params.operator,
+    from,
+    to,
+    tokenId,
+    value,
+  });
+
   // Decrease sender balance (skip zero address = mint)
   if (from !== ADDRESS_ZERO) {
     const fromId = `${from}-${tokenId}`;
@@ -393,6 +409,22 @@ ConditionalTokens.TransferBatch.handler(async ({ event, context }) => {
   const values = event.params.values;
   const blockNumber = BigInt(event.block.number);
   const blockTimestamp = BigInt(event.block.timestamp);
+
+  // Store raw batch transfer event
+  const transferId = `${event.transaction.hash}-${event.logIndex}`;
+  context.ShareTransferBatch.set({
+    id: transferId,
+    blockNumber,
+    blockTimestamp,
+    logIndex: event.logIndex,
+    transactionHash: event.transaction.hash,
+    timestamp: blockTimestamp,
+    operator: event.params.operator,
+    from,
+    to,
+    tokenIds: ids,
+    values,
+  });
 
   for (let i = 0; i < ids.length; i++) {
     const tokenId = ids[i]!;
